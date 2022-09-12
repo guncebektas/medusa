@@ -13,6 +13,9 @@ export default (app) => {
     transformQuery(EmptyQueryParams, {
       defaultRelations: defaultStoreOrderEditRelations,
       defaultFields: defaultStoreOrderEditFields,
+      allowedFields: defaultStoreOrderEditFields.filter(
+        (field) => field !== "internal_note"
+      ),
       isList: false,
     }),
     middlewares.wrap(require("./get-order-edit").default)

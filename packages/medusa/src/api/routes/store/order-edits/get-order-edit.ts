@@ -53,12 +53,7 @@ export default async (req: Request, res: Response) => {
   ) as OrderEditService
 
   const { id } = req.params
-  const retrieveConfig = {
-    ...req.retrieveConfig,
-    select: req.retrieveConfig.select?.filter((field: string) => {
-      return field !== "internal_note"
-    }),
-  }
+  const retrieveConfig = req.retrieveConfig
 
   const orderEdit = await orderEditService.retrieve(id, retrieveConfig)
 
