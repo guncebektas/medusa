@@ -147,7 +147,7 @@ export function prepareRetrieveQuery<
 
   if (queryConfig?.allowedFields?.length) {
     expandFields?.forEach((field) => {
-      if (queryConfig?.allowedFields?.includes(field as string)) {
+      if (!queryConfig?.allowedFields?.includes(field as string)) {
         throw new MedusaError(
           MedusaError.Types.INVALID_DATA,
           `Field ${field.toString()} is not valid`
