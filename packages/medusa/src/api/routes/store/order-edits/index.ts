@@ -6,7 +6,7 @@ import { isFeatureFlagEnabled } from "../../../middlewares/feature-flag-enabled"
 const route = Router()
 
 export default (app) => {
-  app.use("/order-edits", isFeatureFlagEnabled(OrderEditFeatureFlag), route)
+  app.use("/order-edits", isFeatureFlagEnabled(OrderEditingFeatureFlag), route)
 
   route.get(
     "/",

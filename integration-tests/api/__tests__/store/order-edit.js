@@ -7,7 +7,7 @@ const { useDb } = require("../../../helpers/use-db")
 
 jest.setTimeout(30000)
 
-describe("[MEDUSA_FF_ORDER_EDIT] /store/order-edits", () => {
+describe("[MEDUSA_FF_ORDER_EDITING] /store/order-edits", () => {
   let medusaProcess
   let dbConnection
 
@@ -15,7 +15,7 @@ describe("[MEDUSA_FF_ORDER_EDIT] /store/order-edits", () => {
     const cwd = path.resolve(path.join(__dirname, "..", "..", ".."))
     const [process, connection] = await startServerWithEnvironment({
       cwd,
-      env: { MEDUSA_FF_ORDER_EDIT: true },
+      env: { MEDUSA_FF_ORDER_EDITING: true },
       verbose: false,
     })
     dbConnection = connection
