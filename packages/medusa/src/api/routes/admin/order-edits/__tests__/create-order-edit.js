@@ -41,7 +41,7 @@ describe("POST /admin/order-edits", () => {
           internal_note: internalNote,
         },
         {
-          looggedInUserId: IdMap.getId("admin_user"),
+          loggedInUserId: IdMap.getId("admin_user"),
         }
       )
     })
