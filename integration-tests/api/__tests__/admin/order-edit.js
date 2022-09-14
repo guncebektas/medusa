@@ -21,9 +21,10 @@ jest.setTimeout(30000)
 describe("[MEDUSA_FF_ORDER_EDITING] /admin/order-edits", () => {
   let medusaProcess
   let dbConnection
+  const adminUserId = "admin_user"
 
   beforeAll(async () => {
-    const cwd = path.resolve(path.join(__dirname, "..", "..", ".."))
+    const cwd = path.resolve(path.join(__dirname, "..", ".."))
     const [process, connection] = await startServerWithEnvironment({
       cwd,
       env: { MEDUSA_FF_ORDER_EDITING: true },
@@ -51,7 +52,9 @@ describe("[MEDUSA_FF_ORDER_EDITING] /admin/order-edits", () => {
     })
 
     it("deletes order edit", async () => {
-      const { id } = await simpleOrderEditFactory(dbConnection)
+      const { id } = await simpleOrderEditFactory(dbConnection, {
+        created_by: adminUserId,
+      })
 
       const api = useApi()
 
@@ -60,8 +63,9 @@ describe("[MEDUSA_FF_ORDER_EDITING] /admin/order-edits", () => {
         adminHeaders
       )
 
+      console.log(response)
       expect(response.status).toEqual(200)
-      expect(response.body).toEqual({
+      expect(response.data).toEqual({
         id,
         object: "order_edit",
         deleted: true,
@@ -69,7 +73,9 @@ describe("[MEDUSA_FF_ORDER_EDITING] /admin/order-edits", () => {
     })
 
     it("deletes already removed order edit", async () => {
-      const { id } = await simpleOrderEditFactory(dbConnection)
+      const { id } = await simpleOrderEditFactory(dbConnection, {
+        created_by: adminUserId,
+      })
 
       const api = useApi()
 
@@ -77,78 +83,79 @@ describe("[MEDUSA_FF_ORDER_EDITING] /admin/order-edits", () => {
         `/admin/order-edits/${id}`,
         adminHeaders
       )
+      expect(response.status).toEqual(200)
+      expect(response.data).toEqual({
+        id,
+        object: "order_edit",
+        deleted: true,
+      })
+
       const idempontentResponse = await api.delete(
         `/admin/order-edits/${id}`,
         adminHeaders
       )
 
-      expect(response.status).toEqual(200)
-      expect(response.body).toEqual({
-        id,
-        object: "order_edit",
-        deleted: true,
-      })
       expect(idempontentResponse.status).toEqual(200)
-      expect(idempontentResponse.body).toEqual({
+      expect(idempontentResponse.data).toEqual({
         id,
         object: "order_edit",
         deleted: true,
       })
     })
 
-    // test.each([
-    //   {
-    //     timestampField: "requested_at",
-    //     actorField: "requested_by",
-    //     status: "",
-    //   },
-    //   // {
-    //   //   timestampField: "confirmed_at",
-    //   //   actorField: "confirmed_by",
-    //   //   status: "",
-    //   // },
-    //   // { timestampField: "declined_at", actorField: "declined_by", status: "" },
-    //   // {
-    //   //   timestampField: "cancelled_at",
-    //   //   actorField: "cancelled_by",
-    //   //   status: "",
-    //   // },
-    // ])(
-    //   "fails to delet order edit with status $status",
-    //   async ({ timestampField, actorField, status }) => {
-    //     expect.assertions(2)
-    //     const adminUserId = "admin_user"
-    //     const { id } = await simpleOrderEditFactory(dbConnection, {
-    //       [timestampField]: new Date(),
-    //       [actorField]: adminUserId,
-    //     })
+    test.each([
+      [
+        "requested",
+        {
+          timestampField: "requested_at",
+          actorField: "requested_by",
+        },
+      ],
+      [
+        "confirmed",
+        {
+          timestampField: "confirmed_at",
+          actorField: "confirmed_by",
+        },
+      ],
+      [
+        "declined",
+        {
+          timestampField: "declined_at",
+          actorField: "declined_by",
+        },
+      ],
+      [
+        "canceled",
+        {
+          timestampField: "canceled_at",
+          actorField: "canceled_by",
+        },
+      ],
+    ])(
+      "fails to delete order edit with status %s",
+      async (status, { timestampField, actorField }) => {
+        expect.assertions(2)
 
-    //     const api = useApi()
-
-    //     await api
-    //       .delete(`/admin/order-edits/${id}`, adminHeaders)
-    //       .catch((err) => {
-    //         console.log(err)
-    //       })
-    //   }
-    // )
-
-    it("fails to delet order edit with status not Created", async () => {
-      expect.assertions(2)
-
-      const adminUserId = "admin_user"
-      const { id } = await simpleOrderEditFactory(dbConnection, {
-        canceled_at: new Date(),
-        canceled_by: adminUserId,
-      })
-
-      const api = useApi()
-
-      await api
-        .delete(`/admin/order-edits/${id}`, adminHeaders)
-        .catch((err) => {
-          console.log(err)
+        const adminUserId = "admin_user"
+        const { id } = await simpleOrderEditFactory(dbConnection, {
+          [timestampField]: new Date(),
+          [actorField]: adminUserId,
+          created_by: adminUserId,
         })
-    })
+
+        const api = useApi()
+
+        await api
+          .delete(`/admin/order-edits/${id}`, adminHeaders)
+          .catch((err) => {
+            console.log(err.response.data)
+            expect(err.response.status).toEqual(400)
+            expect(err.response.data.message).toEqual(
+              `Cannot delete order edit with status ${status}`
+            )
+          })
+      }
+    )
   })
 })
