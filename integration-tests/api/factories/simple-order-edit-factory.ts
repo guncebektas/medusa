@@ -31,7 +31,7 @@ export const simpleOrderEditFactory = async (
     data.order_id = order.id
   }
 
-  const job = manager.create<OrderEdit>(OrderEdit, {
+  const orderEdit = manager.create<OrderEdit>(OrderEdit, {
     id: data.id,
     order_id: data.order_id,
     internal_note: data.internal_note,
@@ -48,5 +48,5 @@ export const simpleOrderEditFactory = async (
     confirmed_by: data.confirmed_by,
   })
 
-  return await manager.save<OrderEdit>(job)
+  return await manager.save<OrderEdit>(orderEdit)
 }

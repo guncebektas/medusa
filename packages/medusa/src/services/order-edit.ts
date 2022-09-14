@@ -16,14 +16,15 @@ export class OrderEditService extends TransactionBaseService {
   protected readonly orderEditRepository_: typeof OrderEditRepository
 
   constructor({ manager, orderEditRepository }: InjectedDependencies) {
-    super({ manager, orderEditRepository })
+    // eslint-disable-next-line prefer-rest-params
+    super(arguments[0])
 
     this.manager_ = manager
     this.orderEditRepository_ = orderEditRepository
   }
 
   async delete(orderEditId: string): Promise<void> {
-    return this.atomicPhase_(async (manager) => {
+    return await this.atomicPhase_(async (manager) => {
       const orderEditRepo = manager.getCustomRepository(
         this.orderEditRepository_
       )
@@ -31,7 +32,7 @@ export class OrderEditService extends TransactionBaseService {
       const edit = await orderEditRepo.findOne({ where: { id: orderEditId } })
 
       if (!edit) {
-        return Promise.resolve()
+        return
       }
 
       if (edit.status !== OrderEditStatus.CREATED) {
@@ -42,8 +43,6 @@ export class OrderEditService extends TransactionBaseService {
       }
 
       await orderEditRepo.softRemove(edit)
-
-      return Promise.resolve()
     })
   }
 }
