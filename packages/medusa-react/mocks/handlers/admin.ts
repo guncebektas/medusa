@@ -1659,7 +1659,7 @@ export const adminHandlers = [
       ctx.status(200),
       ctx.json({
         id,
-        object: "order-edit",
+        object: "order_edit",
         deleted: true
       })
     )
