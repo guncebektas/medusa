@@ -16,7 +16,7 @@ export class OrderEditService extends TransactionBaseService {
   protected readonly orderEditRepository_: typeof OrderEditRepository
 
   constructor({ manager, orderEditRepository }: InjectedDependencies) {
-    super({ manager })
+    super({ manager, orderEditRepository })
 
     this.manager_ = manager
     this.orderEditRepository_ = orderEditRepository
@@ -41,9 +41,11 @@ export class OrderEditService extends TransactionBaseService {
         )
       }
 
-      await orderEditRepo.softDelete(edit)
+      await orderEditRepo.softRemove(edit)
 
       return Promise.resolve()
     })
   }
 }
+
+export default OrderEditService
